@@ -46,7 +46,7 @@ The CLI commands here are given for Linux machines. If on Windows, replace *`.sh
 > znode is the shortname for ZooKeeper node, also known as server.
 
 ## [Kafka Theory Roundup](#summary)
-![Kafka high-level workflow](./Figures/Kafka-Theory-Roundup.png)
+![Kafka high-level workflow](./resources/Kafka-Theory-Roundup.png)
 
 # [Starting Kafka](#summary)
 To start Kafka, Zookeeper has to be already running in the background. Before going into that, let's go over Kafka environment's configuration briefly. 
