@@ -24,8 +24,6 @@ This document is a compilation of Kafka concepts and commands gathered from vari
 
 The CLI commands here are given for Linux machines. If on Windows, replace *`.sh`* with *`.bat`* at the end of the commands.
 
-
-
 # [Kafka Theory](#summary)
 
 ## [Topics, Partitions, and Offsets](#summary)
@@ -111,7 +109,6 @@ You can stop Kafka and Zookeeper processes by either one of the following:
 1. Pressing ctrl+c
 1. Using `zookeeper-server-stop.sh` or `kafka-server-stop.sh`
 
-
 ## [Troubleshooting](#summary)
 If you get an error, there might be a running process listening to the port Zookeeper or Kafka are trying to bind to. If that is the case, look for what PID is associated with that port and kill such process. 
 
@@ -136,6 +133,7 @@ A way of terminating the process is as follows:
         ```
         kill -9 <pid_number>
         ```
+
 # [Command Line Interface](#summary)
 This section shows how to use Kafka command lines through the terminal (requires a third terminal instance to be open).
 
@@ -183,6 +181,7 @@ Argument `--zookeeper` is used throughout but is depricated. Please replace it w
     > * If there is a lag<sup>*</sup> in any partition group and that group is invoked with a console consumer command, such group-name consumer picks up from the offset where it's left and consumes up to the last offset committed. 
     >
     > <sup>*</sup>the current offset is not the last one registered in the partition 
+
 * List all groups
     ```
     kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
@@ -227,4 +226,3 @@ Set up producer and consumer:
 1.  ```
     kafka-console-consumer.sh --bootstrap-server <ip_address>:9092 --topic --group <group_name> windows_to_linux
     ```
-
