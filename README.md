@@ -2,6 +2,15 @@
 1. [Introduction](#introduction)
 1. [Kafka Theory](#kafka-theory)
     1. [Topics, Partitions, and Offsets](#topics,-partitions,-and-offsets)
+    1. [Brokers and Topics](#brokers-and-topics)
+    1. [Topic Replication](#topic-replication)
+        1. [Concept of Leader for a Partition](#concept-of-leader-for-a-partition)
+    1. [Producers](#producers)
+    1. [Consumer](#consumers)
+        1. [Consumer Groups](#consumer-groups)
+        1. [Consumer Offsets](#consumer-offsets)
+            1. [Delivery Semantics for Consumers](#delivery-semantics-for-consumers)
+    1. [Kafka Broker Discovery](#kafka-broker-discovery)
     1. [ZooKeeper](#zookeeper)
     1. [Kafka Theory Roundup](#kafka-theory-roundup)
 1. [Starting Kafka](#starting-kafka)
@@ -27,21 +36,71 @@ The CLI commands here are given for Linux machines. If on Windows, replace *`.sh
 # [Kafka Theory](#summary)
 
 ## [Topics, Partitions, and Offsets](#summary)
-* *Topic*: one particular stream of data.
-* *Partition*: where a topic gets split into.
-* *Offset*: incremental ID received by each message that is written under a topic.
-* Data (messages) is kept only for a limited time of 1 week by default, but it keeps on incrementing the offeset, never going back to zero.
-* Data cannot be changed once written to a partition---this is called immutability.
-* Data is assigned randomly to a partition unless a key is provided.
+* *Topic*: one particular stream of data
+* *Partition*: where a topic gets split into
+* *Offset*: incremental ID received by each message that is written under a topic
+* Data (messages) is kept only for a limited time of 1 week by default, but it keeps on incrementing the offeset, never going back to zero
+* Data cannot be changed once written to a partition---this is called immutability    
+* Data is assigned randomly to a partition unless a key is provided
+
+## [Brokers and Topics](#summary)
+* A Kafka cluster is a set of brokers (servers)
+* Each broker has an ID number
+* Upon connecting to a broker, you can have access to its entire cluster
+* Each broker can have a different partition, which can store messages from the same topic. One broker also can have zero or more than one partition with the same topic
+
+## [Topic Replication](#summary)
+* Topics should have a replication factor bigger than 1 (3 is the gold standard), so that if a broker is down, another broker can serve the data
+* The partitions, which carry the topics, are the ones that actually become replicas in different brokers
+
+### [Concept of Leader for a Partition](#summary)
+* Only ONE broker can be a leader for a given partition
+* Only that leader can receive and serve data for a partition---the other brokers will sync the data, generating in-sync replicas (ISR)
+
+## [Producers](#summary)
+* Producers write data to topics (automatically know which broker and partition to write to)
+* Producers can choose receive acknowledgement of data writes:
+    * **acks=0** --> producer won't wait for acknowledgement (can result in data loss)
+    * **acks=1** (default) --> wait for leader's acknowledgment (limited data loss) 
+    * **acks=all** --> leader + replicas's acknoledgment (no data loss)
+* Producers can choose send a key (string or number) with the message 
+    * **key=null** --> data is sent round robin, which tends to write to partition topics evenly (load balancing)
+    * By specifying a key, you can garantee message ordering---messages with the same key will always go the same partition 
+
+## [Consumers](#summary)
+* Consumers read data from a topic
+* For a given partition, the data is read in a FIFO basis (and consumers intermitently circle around brokers in which the given topic resides while reading the data)
+
+### [Consumer Groups](#summary)
+* Consumers read data in consumer groups
+* The number of partitions that each consumer within a group reads depends on the number of partitions and consumers:
+    * **No. Cons. < No. Part.** --> some consumers read from more than one partition
+    * **No. Cons. = No. Part.** --> each consumer reads from only one partition
+    * **No. Cons. > No. Part.** --> some consumers will read their exclusive partitions, the remaining consumers get idle
+
+### [Consumer Offsets](#summary)
+* Consumer offsets stores the last offset read by a consumer group
+* The offsets are committed live in a topic named ***__consumer_offsets***
+* Consumer offset allows consumer groups to read back from where it left off
+
+#### [Delivery Semantics for Consumers](#summary)
+* Consumers can choose when to commit offsets
+    * **At most once** --> offsets are committed when message is received---if anything goes wrong amid the transmission, the message will be lost
+    * **At least once** (preferred) --> offsets are committed after the message is processed---if an error occurs, the message can be read again (make sure that processing the message more than once won't impact your system)
+    * **Exactly once** --> achieved using Kafka Streams API or an idempotent consumer
+
+## [Kafka Broker Discovery](#summary)
+* Every Kafka broker is also called a "bootstrap server" (by connecting to one broker, you connect to the entire cluster)
+* Each broker knows about all brokers, topics, and partitions
 
 ## [Zookeeper](#summary)
-* Operates with an odd number of servers in production (although examples in this document use only one server).
-* When in production, it has one server as the leader and the remaining servers as followers.
-* Chooses the partition leader in a set of partitions.
-* Stores matadata on Kafka's components (brokers, partitions, topics)---apparently, the server leader can read and write to a partition the  and the followers can only read it.
-* Sends notifications to Kafka when changes are applied to the metadata---still have to verify this statement.
-* Does not store consumer offsets since Kafka 0.11.
-> znode is the shortname for ZooKeeper node, also known as server.
+* Operates with an odd number of servers in production (although examples in this document use only one server)
+* When in production, it has one server as the leader and the remaining servers as followers
+* Chooses the partition leader in a set of partitions
+* Stores matadata on Kafka's components (brokers, partitions, topics)---apparently, the server leader can read and write to a partition the  and the followers can only read it
+* Sends notifications to Kafka when changes are applied to the metadata---still have to verify this statement
+* Does not store consumer offsets since Kafka 0.11
+> znode is the shortname for ZooKeeper node, also known as server
 
 ## [Kafka Theory Roundup](#summary)
 ![Kafka high-level workflow](./resources/Kafka-Theory-Roundup.png)
@@ -116,20 +175,20 @@ If you get an error, there might be a running process listening to the port Zook
 
 A way of terminating the process is as follows:
 * *Windows*:
-    1. Find the PID listening to Kafka or Zookeeper's port.
+    1. Find the PID listening to Kafka or Zookeeper's port
         ```
         netstat -ano | findstr :<port_number>
         ```
-    1. Kill that PID.
+    1. Kill that PID
         ```
         taskkill /PID <pid_number> /F
         ```
 * *Linux*
-    1. Find the PID listening to Kafka or Zookeeper's port.
+    1. Find the PID listening to Kafka or Zookeeper's port
         ```
         netstat -ltnp | grep -w ":<port_number>"
         ```
-    1. Kill that PID.
+    1. Kill that PID
         ```
         kill -9 <pid_number>
         ```
@@ -177,8 +236,8 @@ Argument `--zookeeper` is used throughout but is depricated. Please replace it w
     kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic <topic_name> --group <group_name>
     ```
     > ### Notes 
-    > * If console consumers (applications) are under the same group name, they will share the broker partitions evenly.
-    > * If there is a lag<sup>*</sup> in any partition group and that group is invoked with a console consumer command, such group-name consumer picks up from the offset where it's left and consumes up to the last offset committed. 
+    > * If console consumers (applications) are under the same group name, they will share the broker partitions evenly
+    > * If there is a lag<sup>*</sup> in any partition group and that group is invoked with a console consumer command, such group-name consumer picks up from the offset where it's left and consumes up to the last offset committed
     >
     > <sup>*</sup>the current offset is not the last one registered in the partition 
 
