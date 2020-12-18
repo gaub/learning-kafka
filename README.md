@@ -1,7 +1,7 @@
 # [Summary](#summary)
 1. [Introduction](#introduction)
 1. [Kafka Theory](#kafka-theory)
-    1. [Topics, Partitions, and Offsets](#topics,-partitions,-and-offsets)
+    1. [Topics, Partitions, and Offsets](#topics\,-partitions\,-and-offsets)
     1. [Brokers and Topics](#brokers-and-topics)
     1. [Topic Replication](#topic-replication)
         1. [Concept of Leader for a Partition](#concept-of-leader-for-a-partition)
@@ -29,7 +29,7 @@
 
 
 # [Introduction](#summary)
-This document is a compilation of Kafka concepts and commands gathered from various websites in my efforts to learn the platform. The LinkedIn Learning course *Learn Apache Kafka for Beginners* by [Stephane Maarek](https://www.linkedin.com/in/stephanemaarek/?trk=lil_course) ([@simplesteph](https://github.com/simplesteph)) is the main source I have visited to master Kafka. 
+This document is a compilation of Kafka concepts and commands gathered from various websites in my efforts to learn the platform. The LinkedIn Learning course *Learn Apache Kafka for Beginners* by [Stephane Maarek](https://www.linkedin.com/in/stephanemaarek/?trk=lil_course) ([@simplesteph](https://github.com/simplesteph)) is the main source I have visited to study Kafka. 
 
 The CLI commands here are given for Linux machines. If on Windows, replace *`.sh`* with *`.bat`* at the end of the commands.
 
@@ -50,7 +50,7 @@ The CLI commands here are given for Linux machines. If on Windows, replace *`.sh
 * Each broker can have a different partition, which can store messages from the same topic. One broker also can have zero or more than one partition with the same topic
 
 ## [Topic Replication](#summary)
-* Topics should have a replication factor bigger than 1 (3 is the gold standard), so that if a broker is down, another broker can serve the data
+* Topics should have a replication factor bigger than 1 (3 is the gold standard) so that if a broker is down, another broker can serve the data
 * The partitions, which carry the topics, are the ones that actually become replicas in different brokers
 
 ### [Concept of Leader for a Partition](#summary)
@@ -74,14 +74,14 @@ The CLI commands here are given for Linux machines. If on Windows, replace *`.sh
 ### [Consumer Groups](#summary)
 * Consumers read data in consumer groups
 * The number of partitions that each consumer within a group reads depends on the number of partitions and consumers:
-    * **No. Cons. < No. Part.** --> some consumers read from more than one partition
-    * **No. Cons. = No. Part.** --> each consumer reads from only one partition
-    * **No. Cons. > No. Part.** --> some consumers will read their exclusive partitions, the remaining consumers get idle
+    * `No. Cons. < No. Part.` --> some consumers read from more than one partition
+    * `No. Cons. = No. Part.` --> each consumer reads from only one partition
+    * `No. Cons. > No. Part.` --> some consumers will read their exclusive partitions, the remaining consumers get idle
 
 ### [Consumer Offsets](#summary)
-* Consumer offsets stores the last offset read by a consumer group
-* The offsets are committed live in a topic named ***__consumer_offsets***
-* Consumer offset allows consumer groups to read back from where it left off
+* *Consumer offsets*: stores the last offset read by a consumer group
+* The offsets are committed live to a topic named ***__consumer_offsets***
+* ***__consumer_offsets*** allows a consumer group to read back from where it left off
 
 #### [Delivery Semantics for Consumers](#summary)
 * Consumers can choose when to commit offsets
@@ -145,7 +145,7 @@ Then make the following changes to their respective property files found under t
     ```
 * *server.properties*:
     ```
-    log.dirs=<partition_name>/<kafka_installation_folder>/data/kafka
+    log.dirs=<partition_name>:/<kafka_installation_folder>/data/kafka
     ```
 
 
@@ -165,11 +165,11 @@ If you see `INFO [GroupMetadataManager brokerId=0]` as a reponse, Kafka was init
 
 ## [Stopping Kafka and Zookeeper](#summary)
 You can stop Kafka and Zookeeper processes by either one of the following:
-1. Pressing ctrl+c
-1. Using `zookeeper-server-stop.sh` or `kafka-server-stop.sh`
+* Pressing ctrl+c
+* Using `zookeeper-server-stop.sh` or `kafka-server-stop.sh`
 
 ## [Troubleshooting](#summary)
-If you get an error, there might be a running process listening to the port Zookeeper or Kafka are trying to bind to. If that is the case, look for what PID is associated with that port and kill such process. 
+If you get an error, there might be a running process listening to the port Zookeeper or Kafka are trying to bind to. If that is the case, look for what PID is associated with that port and kill that process. 
 
 > By default, Zookeeper and Kafka bind to ports 2181 and 9092, respectively.
 
@@ -226,7 +226,7 @@ Argument `--zookeeper` is used throughout but is depricated. Please replace it w
     ```
 
 ## [Console consumer](#summary)
-* Consuming messages (offsets)
+* Consuming messages
     ```
     kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic <topic_name> --from-beginning
     ```
@@ -265,10 +265,10 @@ Argument `--zookeeper` is used throughout but is depricated. Please replace it w
 Here are some simple applications I have created so far.
 
 ## [Talk Between Two Clients](#summary)
-This is a simple application of Kafka concepts. The porpuse is to produce data with a Linux client and consume it with a Windows client and vice-versa. 
+This is a simple application of Kafka concepts. The porpuse is to produce data with a Linux client and consume it with a Windows client, and vice-versa. 
 
 ### [Client Setup](#summary)
-The setup below should be done from both Linux and Windows client. ```<ip_address>``` was taken from the section *ethernet adapter vEthernet (WSL)* shown upon using ```ipconfig``` on Windows.
+The setup below should be done from both Linux and Windows client. `<ip_address>` was taken from the section *ethernet adapter vEthernet (WSL)* shown upon using `ipconfig` on Windows.
 
 Start Kafka:
 1.  ```
