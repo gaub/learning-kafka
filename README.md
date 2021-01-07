@@ -12,6 +12,7 @@
             1. [Delivery Semantics for Consumers](#delivery-semantics-for-consumers)
     1. [Kafka Broker Discovery](#kafka-broker-discovery)
     1. [ZooKeeper](#zookeeper)
+    1. [Client Bi-directional Compatibility](#client-bi\-directional-compatibility)
     1. [Kafka Theory Roundup](#kafka-theory-roundup)
 1. [Starting Kafka](#starting-kafka)
     1. [Starting ZooKeeper](#starting-zookeeper)
@@ -101,6 +102,10 @@ The CLI commands here are given for Linux machines. If on Windows, replace *`.sh
 * Sends notifications to Kafka when changes are applied to the metadata---still have to verify this statement
 * Does not store consumer offsets since Kafka 0.11
 > znode is the shortname for ZooKeeper node, also known as server
+
+## [Client Bi-directional Compatibility](#summary)
+* As of Kafka 0.10.2, an older client can talk to a newer broker and vice-versa
+* Use the latest client library version if you can
 
 ## [Kafka Theory Roundup](#summary)
 ![Kafka high-level workflow](./resources/Kafka-Theory-Roundup.png)
