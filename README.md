@@ -98,7 +98,7 @@ The CLI commands here are given for Linux machines. If on Windows, replace *`.sh
 * Operates with an odd number of servers in production (although examples in this document use only one server)
 * When in production, it has one server as the leader and the remaining servers as followers
 * Chooses the partition leader in a set of partitions
-* Stores matadata on Kafka's components (brokers, partitions, topics)---apparently, the server leader can read and write to a partition the  and the followers can only read it
+* Stores matadata on Kafka's components (brokers, partitions, topics)---apparently, the server leader can read and write to a partition, and the followers can only read from a partition
 * Sends notifications to Kafka when changes are applied to the metadata---still have to verify this statement
 * Does not store consumer offsets since Kafka 0.11
 > znode is the shortname for ZooKeeper node, also known as server
